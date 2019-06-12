@@ -30,7 +30,7 @@ x = layers.Dense(128, activation='relu')(x)
 x = layers.Dense(128, activation='relu')(x)
 x = layers.Dense(128, activation='relu')(x)
 x = layers.Dense(128, activation='relu')(x)
-x = layers.Dense(JarlaEnvironment.CONST_NUMBER_OF_ACTIONS, activation='linear')(x)
+x = layers.Dense(len(JarlaEnvironment.CONST_ACTIONS), activation='linear')(x)
 
 model = Model(inputs=input_layer, outputs=x)
 
@@ -67,7 +67,7 @@ for i in range(1, max_run_iterations+1):
     # Select some action to take
     if np.random.random() < eps:
         # Select a random action
-        action_selection = np.random.randint(0, JarlaEnvironment.CONST_NUMBER_OF_ACTIONS)
+        action_selection = np.random.randint(0, len(JarlaEnvironment.CONST_ACTIONS))
         print("Selected random action of " + str(action_selection))
     else:
         # Act according to what we think will give best reward

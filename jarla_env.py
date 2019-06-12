@@ -17,15 +17,21 @@ camera.framerate = 30
 rawCapture = PiRGBArray(camera, size=(256, 256))
 time.sleep(0.2)
 
-while True:
-    start_time = time.time()
+def get_frame():
     camera.capture(rawCapture, format='rgb', use_video_port=True)
-    image = rawCapture.array
-    end_time = time.time()
-    print("Took " + str(end_time-start_time) + "s")
-    pyplot.imshow(image)
-    pyplot.show()
+    image = np.copy(rawCapture.array)
     rawCapture.truncate(0)
+    return image
+
+#while True:
+#    start_time = time.time()
+#    camera.capture(rawCapture, format='rgb', use_video_port=True)
+#    image = rawCapture.array
+#    end_time = time.time()
+#    print("Took " + str(end_time-start_time) + "s")
+#    pyplot.imshow(image)
+#    pyplot.show()
+#    rawCapture.truncate(0)
 
 
 
@@ -106,17 +112,17 @@ class JarlaEnvironment:
 
     # Return the state of the environment!
     def get_state(self):
-        # For now, return a random 3-channel 512x512 image, normalized.
-        return np.random.randint(0, 256, (1, self.CONST_IMAGE_HEIGHT, self.CONST_IMAGE_WIDTH, 3))/255.0
+        return np.reshape(get_frame(), (1, 256, 256, 3))/255.0
         
-    def get_current_reward():
-        return np.random.randint(0, 10)
+    def get_current_reward(self):
+        frame = get_frame()
+        return np.mean(frame)
 
     def act(self, action_number):
         t = threading.Thread(target=self.CONST_ACTIONS[action_number])
         t.start()
         t.join()
-        return get_current_reward()
+        return self.get_current_reward()
         
 #    # To be used in the future to pipeline
 #    def act_and_fit(self, action_number, model, iteration_start_state, perceived_reward_train_vec):
