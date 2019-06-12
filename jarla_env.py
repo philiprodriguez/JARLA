@@ -65,8 +65,7 @@ def thread_action_forward():
     GPIO.output(pin_lmf, True)
     GPIO.output(pin_rmf, True)
 
-    # Wait one second
-    time.sleep(1.0)
+    time.sleep(0.50)
 
     # Instruct motors
     motors_off()
@@ -76,8 +75,7 @@ def thread_action_backward():
     GPIO.output(pin_lmb, True)
     GPIO.output(pin_rmb, True)
 
-    # Wait one second
-    time.sleep(1.0)
+    time.sleep(0.50)
 
     # Instruct motors
     motors_off()
@@ -87,8 +85,7 @@ def thread_action_left():
     GPIO.output(pin_lmb, True)
     GPIO.output(pin_rmf, True)
 
-    # Wait one second
-    time.sleep(0.5)
+    time.sleep(0.25)
 
     # Instruct motors
     motors_off()
@@ -98,8 +95,7 @@ def thread_action_right():
     GPIO.output(pin_lmf, True)
     GPIO.output(pin_rmb, True)
 
-    # Wait one second
-    time.sleep(0.5)
+    time.sleep(0.25)
 
     # Instruct motors
     motors_off()

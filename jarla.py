@@ -49,8 +49,8 @@ env = JarlaEnvironment()
 
 y = 0.80
 eps = 0.5
-eps_decay_factor = 0.9999
-max_run_iterations = 99999
+eps_decay_factor = 0.999
+max_run_iterations = 999999
 reward_history = []
 for i in range(1, max_run_iterations+1):
     eps *= eps_decay_factor
@@ -92,4 +92,6 @@ for i in range(1, max_run_iterations+1):
 
 	# Train on correct answer!
     model.fit(x=iteration_start_state, y=perceived_reward_train_vec, batch_size=1, epochs=1)
+    if i % 50 == 1:
+        model.save(str(i) + "_" + str(int(round(time.time()*1000))))
 print(reward_history)
