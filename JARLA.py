@@ -1,7 +1,9 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
-from tensorflow.keras.models import Model 
+from tensorflow.keras.models import Model
+from matplotlib import pyplot
+from matplotlib import image
 
 print("JARLA is starting...")
 
@@ -37,3 +39,8 @@ x = layers.Dense(4, activation='linear')(x)
 model = Model(inputs=input_layer, outputs=x)
 
 print(model.summary())
+
+image = image.imread("image.jpg")
+print(image.shape)
+pyplot.imshow(image)
+pyplot.show()
