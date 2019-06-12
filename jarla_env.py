@@ -34,24 +34,31 @@ def get_frame():
 #    rawCapture.truncate(0)
 
 
-
+pin_led = 11
 pin_rmf = 18
 pin_rmb = 16
 pin_lmf = 13
 pin_lmb = 15
 
 GPIO.setmode(GPIO.BOARD)
+GPIO.setup(pin_led, GPIO.OUT)
 GPIO.setup(pin_rmf, GPIO.OUT)
 GPIO.setup(pin_rmb, GPIO.OUT)
 GPIO.setup(pin_lmf, GPIO.OUT)
 GPIO.setup(pin_lmb, GPIO.OUT)
 
-def false_all():
+led_pwm = GPIO.PWM(pin_led, 1)
+led_pwm.start(50.0)
+
+def motors_off():
     GPIO.output(pin_rmf, False)
     GPIO.output(pin_rmb, False)
     GPIO.output(pin_lmf, False)
     GPIO.output(pin_lmb, False)
-false_all()
+motors_off()
+
+def set_led(reward):
+    led_pwm.ChangeFrequency(min(reward/6.375, 40.0))
 
 def thread_action_forward():
     # Instruct motors
@@ -62,7 +69,7 @@ def thread_action_forward():
     time.sleep(1.0)
 
     # Instruct motors
-    false_all()
+    motors_off()
 
 def thread_action_backward():
     # Instruct motors
@@ -73,7 +80,7 @@ def thread_action_backward():
     time.sleep(1.0)
 
     # Instruct motors
-    false_all()
+    motors_off()
 
 def thread_action_left():
     # Instruct motors
@@ -84,7 +91,7 @@ def thread_action_left():
     time.sleep(0.5)
 
     # Instruct motors
-    false_all()
+    motors_off()
 
 def thread_action_right():
     # Instruct motors
@@ -95,7 +102,7 @@ def thread_action_right():
     time.sleep(0.5)
 
     # Instruct motors
-    false_all()
+    motors_off()
 
 class JarlaEnvironment:
     CONST_IMAGE_WIDTH = 256

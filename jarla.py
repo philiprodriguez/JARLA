@@ -5,6 +5,7 @@ from tensorflow.keras.models import Model
 import matplotlib
 from matplotlib import pyplot
 from matplotlib import image
+import jarla_env
 from jarla_env import JarlaEnvironment
 import time
 print("JARLA is starting...")
@@ -46,7 +47,7 @@ model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 # Construct environment instance
 env = JarlaEnvironment()
 
-y = 0.95
+y = 0.80
 eps = 0.5
 eps_decay_factor = 0.9999
 max_run_iterations = 99999
@@ -78,6 +79,7 @@ for i in range(1, max_run_iterations+1):
     reward = env.act(action_selection)
     reward_history.append(reward)
     print("Recieved reward of " + str(reward))
+    jarla_env.set_led(reward)
 
     # Compute the reward seemingly gained by taking the action
     iteration_end_state = env.get_state()
