@@ -2,11 +2,104 @@
 # of JARLA.
 
 import numpy as np
+import threading
+import time
+import RPi.GPIO as GPIO
+import matplotlib
+from matplotlib import pyplot
+from matplotlib import image
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+
+camera = PiCamera()
+camera.resolution = (256, 256)
+camera.framerate = 30
+rawCapture = PiRGBArray(camera, size=(256, 256))
+time.sleep(0.2)
+
+while True:
+    start_time = time.time()
+    camera.capture(rawCapture, format='rgb', use_video_port=True)
+    image = rawCapture.array
+    end_time = time.time()
+    print("Took " + str(end_time-start_time) + "s")
+    pyplot.imshow(image)
+    pyplot.show()
+    rawCapture.truncate(0)
+
+
+
+pin_rmf = 18
+pin_rmb = 16
+pin_lmf = 13
+pin_lmb = 15
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(pin_rmf, GPIO.OUT)
+GPIO.setup(pin_rmb, GPIO.OUT)
+GPIO.setup(pin_lmf, GPIO.OUT)
+GPIO.setup(pin_lmb, GPIO.OUT)
+
+def false_all():
+    GPIO.output(pin_rmf, False)
+    GPIO.output(pin_rmb, False)
+    GPIO.output(pin_lmf, False)
+    GPIO.output(pin_lmb, False)
+false_all()
+
+def thread_action_forward():
+    # Instruct motors
+    GPIO.output(pin_lmf, True)
+    GPIO.output(pin_rmf, True)
+
+    # Wait one second
+    time.sleep(1.0)
+
+    # Instruct motors
+    false_all()
+
+def thread_action_backward():
+    # Instruct motors
+    GPIO.output(pin_lmb, True)
+    GPIO.output(pin_rmb, True)
+
+    # Wait one second
+    time.sleep(1.0)
+
+    # Instruct motors
+    false_all()
+
+def thread_action_left():
+    # Instruct motors
+    GPIO.output(pin_lmb, True)
+    GPIO.output(pin_rmf, True)
+
+    # Wait one second
+    time.sleep(0.5)
+
+    # Instruct motors
+    false_all()
+
+def thread_action_right():
+    # Instruct motors
+    GPIO.output(pin_lmf, True)
+    GPIO.output(pin_rmb, True)
+
+    # Wait one second
+    time.sleep(0.5)
+
+    # Instruct motors
+    false_all()
 
 class JarlaEnvironment:
-    CONST_IMAGE_WIDTH = 512
-    CONST_IMAGE_HEIGHT = 512
-    CONST_NUMBER_OF_ACTIONS = 4
+    CONST_IMAGE_WIDTH = 256
+    CONST_IMAGE_HEIGHT = 256
+    CONST_ACTIONS = [
+        thread_action_forward,
+        thread_action_backward,
+        thread_action_left,
+        thread_action_right
+    ]
 
     def __init__(self):
         pass
@@ -14,8 +107,21 @@ class JarlaEnvironment:
     # Return the state of the environment!
     def get_state(self):
         # For now, return a random 3-channel 512x512 image, normalized.
-        return np.random.randint(0, 256, (1, 512, 512, 3))/255.0
+        return np.random.randint(0, 256, (1, self.CONST_IMAGE_HEIGHT, self.CONST_IMAGE_WIDTH, 3))/255.0
+        
+    def get_current_reward():
+        return np.random.randint(0, 10)
 
     def act(self, action_number):
-        # For now, return a random reward
-        return np.random.randint(0, 10)
+        t = threading.Thread(target=self.CONST_ACTIONS[action_number])
+        t.start()
+        t.join()
+        return get_current_reward()
+        
+#    # To be used in the future to pipeline
+#    def act_and_fit(self, action_number, model, iteration_start_state, perceived_reward_train_vec):
+#        # Begin perform action
+#        model.fit(x=iteration_start_state, y=perceived_reward_train_vec, batch_size=1, epochs=1)
+#        
+#        # Join on action completion
+#        # Return reward

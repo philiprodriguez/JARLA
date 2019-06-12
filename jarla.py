@@ -6,35 +6,30 @@ import matplotlib
 from matplotlib import pyplot
 from matplotlib import image
 from jarla_env import JarlaEnvironment
+import time
 print("JARLA is starting...")
 
 # Build the JARLA neural network model...
 
 input_layer = layers.Input(shape=(JarlaEnvironment.CONST_IMAGE_HEIGHT, JarlaEnvironment.CONST_IMAGE_WIDTH, 3))
-x = layers.Conv2D(32, kernel_size=(5, 5), padding='same', activation='relu')(input_layer)
-x = layers.Conv2D(32, kernel_size=(5, 5), padding='same', activation='relu')(x)
-x = layers.Conv2D(32, kernel_size=(5, 5), padding='same', activation='relu')(x)
+x = layers.Conv2D(8, kernel_size=(5, 5), padding='valid', activation='relu')(input_layer)
+x = layers.Conv2D(8, kernel_size=(5, 5), padding='valid', activation='relu')(x)
 x = layers.MaxPooling2D(pool_size=(2, 2), padding='valid')(x)
-x = layers.Conv2D(16, kernel_size=(5, 5), padding='same', activation='relu')(x)
-x = layers.Conv2D(16, kernel_size=(5, 5), padding='same', activation='relu')(x)
-x = layers.Conv2D(16, kernel_size=(5, 5), padding='same', activation='relu')(x)
+x = layers.Conv2D(8, kernel_size=(3, 3), padding='valid', activation='relu')(x)
+x = layers.Conv2D(8, kernel_size=(3, 3), padding='valid', activation='relu')(x)
 x = layers.MaxPooling2D(pool_size=(2, 2), padding='valid')(x)
-x = layers.Conv2D(8, kernel_size=(5, 5), padding='same', activation='relu')(x)
-x = layers.Conv2D(8, kernel_size=(5, 5), padding='same', activation='relu')(x)
-x = layers.Conv2D(8, kernel_size=(5, 5), padding='same', activation='relu')(x)
+x = layers.Conv2D(8, kernel_size=(3, 3), padding='valid', activation='relu')(x)
 x = layers.MaxPooling2D(pool_size=(2, 2), padding='valid')(x)
-x = layers.Conv2D(4, kernel_size=(5, 5), padding='same', activation='relu')(x)
-x = layers.Conv2D(4, kernel_size=(5, 5), padding='same', activation='relu')(x)
-x = layers.Conv2D(4, kernel_size=(5, 5), padding='same', activation='relu')(x)
+x = layers.Conv2D(4, kernel_size=(3, 3), padding='valid', activation='relu')(x)
 
 x = layers.Flatten()(x)
 
-x = layers.Dense(1024, activation='relu')(x)
-x = layers.Dense(1024, activation='relu')(x)
-x = layers.Dense(512, activation='relu')(x)
-x = layers.Dense(512, activation='relu')(x)
-x = layers.Dense(256, activation='relu')(x)
-x = layers.Dense(256, activation='relu')(x)
+x = layers.Dense(128, activation='relu')(x)
+x = layers.Dense(128, activation='relu')(x)
+x = layers.Dense(128, activation='relu')(x)
+x = layers.Dense(128, activation='relu')(x)
+x = layers.Dense(128, activation='relu')(x)
+x = layers.Dense(128, activation='relu')(x)
 x = layers.Dense(JarlaEnvironment.CONST_NUMBER_OF_ACTIONS, activation='linear')(x)
 
 model = Model(inputs=input_layer, outputs=x)
@@ -58,13 +53,16 @@ max_run_iterations = 99999
 reward_history = []
 for i in range(1, max_run_iterations+1):
     eps *= eps_decay_factor
-    if i % 10 == 1:
-        print("Iteration " + str(i) + " of " + str(max_run_iterations))
-        print("Epsilon is at " + str(eps))
+
+    print("Iteration " + str(i) + " of " + str(max_run_iterations))
+    print("Epsilon is at " + str(eps))
 
     # What do we think of our current state?
     iteration_start_state = env.get_state()
+    start_time = time.time()
     q_function_result = model.predict(iteration_start_state)
+    end_time = time.time()
+    print("Prediction took " + str(end_time-start_time) + "s")
 
     # Select some action to take
     if np.random.random() < eps:
@@ -90,5 +88,6 @@ for i in range(1, max_run_iterations+1):
     perceived_reward_train_vec = np.copy(q_function_result)
     perceived_reward_train_vec[0][action_selection] = perceived_reward
 
+	# Train on correct answer!
     model.fit(x=iteration_start_state, y=perceived_reward_train_vec, batch_size=1, epochs=1)
 print(reward_history)
